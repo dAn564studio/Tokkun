@@ -7,6 +7,11 @@ let currentWorkbookIndex = 0;
 let isRandomOrder = true;
 let sliderAnimationId = null;
 
+// 作成中の問題形式 ('choice': 選択問題, 'fillin': 記述問題)
+let currentQuestionType = 'choice';
+// 記述箇所の数 (1〜3個)
+let fillinCount = 1;
+
 // ★ クイズ進行用データ
 let currentQuizList = [];
 let currentQuizIndex = 0;
@@ -34,6 +39,15 @@ const backFromWorkbookDetailBtn = document.getElementById('back-from-workbook-de
 const optionsList = document.querySelector('.options-list');
 const addOptionBtn = document.querySelector('.add-option-btn');
 const questionInput = document.querySelector('.question-input');
+
+// 記述問題作成要素
+const choiceCreateArea = document.getElementById('choice-create-area');
+const fillinCreateArea = document.getElementById('fillin-create-area');
+const fillinPartsContainer = document.getElementById('fillin-parts-container');
+const fillinAddBtn = document.getElementById('fillin-add-btn');
+const fillinRemoveBtn = document.getElementById('fillin-remove-btn');
+const formatChoiceBtn = document.getElementById('format-choice-btn');
+const formatFillinBtn = document.getElementById('format-fillin-btn');
 
 // 問題集リストの表示先
 const workbookList = document.getElementById('workbook-list');
@@ -155,14 +169,12 @@ function switchScreen(targetScreenId) {
   document.getElementById(targetScreenId).classList.remove('hidden');
   document.body.setAttribute('data-screen', targetScreenId);
 
-  // ★ クイズ中・結果画面ではボトムナビを隠す
   if (targetScreenId === 'quiz-play-screen' || targetScreenId === 'quiz-result-screen') {
     bottomNav.classList.add('hidden');
   } else {
     bottomNav.classList.remove('hidden');
   }
 
-  // タブのアクティブ状態の更新
   navItems.forEach(item => item.classList.remove('active'));
   
   if (targetScreenId === 'workbook-detail-screen') {
@@ -178,14 +190,12 @@ function switchScreen(targetScreenId) {
 window.addEventListener('DOMContentLoaded', updateNavIndicator);
 window.addEventListener('resize', updateNavIndicator);
 
-// --- ボトムナビゲーションのイベント ---
 navItems.forEach(item => {
   item.addEventListener('click', () => {
     switchScreen(item.dataset.target);
   });
 });
 
-// ★ ホーム画面の「出題」ボタン（登録されている全問題からランダム出題）
 mainStartBtn.addEventListener('click', () => {
   const allQuestions = [];
   workbooksData.forEach(wb => {
@@ -200,13 +210,89 @@ mainStartBtn.addEventListener('click', () => {
   startQuiz(allQuestions, allQuestions.length, true);
 });
 
-// 詳細画面からの戻るボタン
 backFromWorkbookDetailBtn.addEventListener('click', () => {
   switchScreen('workbook-screen');
 });
 
 
-// --- 問題作成画面の動的操作機能 ---
+// --- 記述問題の作成フォーム描画ロジック ---
+function renderFillinForm() {
+  fillinPartsContainer.innerHTML = '';
+
+  // 記述箇所の数に合わせて input フィールドを構築
+  for (let i = 0; i < fillinCount; i++) {
+    // 前のテキスト入力欄
+    const textInput = document.createElement('input');
+    textInput.type = 'text';
+    textInput.className = 'fillin-text-input';
+    textInput.dataset.type = 'text';
+    textInput.dataset.index = i;
+    textInput.placeholder = i === 0 ? '前の文字 (例: 一匹のダンゴムシの足は合計)' : '中間の文字';
+
+    // 記述箇所の正解入力欄
+    const answerBox = document.createElement('div');
+    answerBox.className = 'fillin-answer-box';
+    answerBox.innerHTML = `
+      <span class="fillin-answer-label">記述箇所 ${i + 1} の正解</span>
+      <input type="text" class="fillin-answer-input" data-type="answer" data-index="${i}" placeholder="正解を入力 (例: 14)">
+    `;
+
+    fillinPartsContainer.appendChild(textInput);
+    fillinPartsContainer.appendChild(answerBox);
+  }
+
+  // 一番右（末尾）のテキスト入力欄
+  const lastTextInput = document.createElement('input');
+  lastTextInput.type = 'text';
+  lastTextInput.className = 'fillin-text-input';
+  lastTextInput.dataset.type = 'text';
+  lastTextInput.dataset.index = fillinCount;
+  lastTextInput.placeholder = '後の文字 (例: 本ある。)';
+  fillinPartsContainer.appendChild(lastTextInput);
+}
+
+// 初期描画を実行
+renderFillinForm();
+
+// 形式切り替えタブのイベント
+formatChoiceBtn.addEventListener('click', () => {
+  currentQuestionType = 'choice';
+  formatChoiceBtn.classList.add('active');
+  formatFillinBtn.classList.remove('active');
+  choiceCreateArea.classList.remove('hidden');
+  fillinCreateArea.classList.add('hidden');
+});
+
+formatFillinBtn.addEventListener('click', () => {
+  currentQuestionType = 'fillin';
+  formatFillinBtn.classList.add('active');
+  formatChoiceBtn.classList.remove('active');
+  fillinCreateArea.classList.remove('hidden');
+  choiceCreateArea.classList.add('hidden');
+});
+
+// プラスボタン：右側に記述箇所を増やす（最大3個）
+fillinAddBtn.addEventListener('click', () => {
+  if (fillinCount >= 3) {
+    alert('記述箇所は最大3個までです。');
+    return;
+  }
+  fillinCount++;
+  renderFillinForm();
+});
+
+// マイナスボタン：右から順番に記述箇所を削除（最小1個）
+fillinRemoveBtn.addEventListener('click', () => {
+  if (fillinCount <= 1) {
+    alert('記述箇所は最低1個必要です。');
+    return;
+  }
+  fillinCount--;
+  renderFillinForm();
+});
+
+
+// --- 選択問題の動的操作機能 ---
 optionsList.addEventListener('click', (e) => {
   const target = e.target;
   if (target.classList.contains('toggle-correct-btn')) {
@@ -278,29 +364,52 @@ function deleteWorkbook(index) {
 }
 
 function saveToWorkbook(index) {
-  const qText = questionInput.value;
-  
-  const optionsData = [];
-  const optionItems = optionsList.querySelectorAll('.option-item');
-  optionItems.forEach(item => {
-    const isCorrect = item.querySelector('.toggle-correct-btn').classList.contains('correct');
-    const optText = item.querySelector('.option-input').value;
-    optionsData.push({
-      text: optText || '（未入力の選択肢）',
-      isCorrect: isCorrect
+  if (currentQuestionType === 'choice') {
+    // 選択問題の保存
+    const qText = questionInput.value;
+    const optionsData = [];
+    const optionItems = optionsList.querySelectorAll('.option-item');
+    
+    optionItems.forEach(item => {
+      const isCorrect = item.querySelector('.toggle-correct-btn').classList.contains('correct');
+      const optText = item.querySelector('.option-input').value;
+      optionsData.push({
+        text: optText || '（未入力の選択肢）',
+        isCorrect: isCorrect
+      });
     });
-  });
 
-  workbooksData[index].questions.push({ 
-    text: qText || '無題の問題',
-    options: optionsData
-  });
-  
+    workbooksData[index].questions.push({
+      type: 'choice',
+      text: qText || '無題の問題',
+      options: optionsData
+    });
+    
+    questionInput.value = '';
+    document.querySelectorAll('.option-input').forEach(input => input.value = '');
+  } else {
+    // 記述問題の保存
+    const textInputs = fillinPartsContainer.querySelectorAll('.fillin-text-input');
+    const answerInputs = fillinPartsContainer.querySelectorAll('.fillin-answer-input');
+
+    const texts = [];
+    textInputs.forEach(input => texts.push(input.value || ''));
+
+    const answers = [];
+    answerInputs.forEach(input => answers.push(input.value || ''));
+
+    workbooksData[index].questions.push({
+      type: 'fillin',
+      texts: texts,
+      answers: answers
+    });
+
+    // 記述フォーム初期化
+    fillinCount = 1;
+    renderFillinForm();
+  }
+
   alert(`「${workbooksData[index].name}」に問題を保存しました！`);
-  
-  questionInput.value = '';
-  document.querySelectorAll('.option-input').forEach(input => input.value = '');
-  
   saveModal.classList.add('hidden');
   renderWorkbooks();
 }
@@ -321,17 +430,40 @@ function openWorkbookDetail(index) {
       const qCard = document.createElement('div');
       qCard.className = 'question-card';
       
-      let optionsBeforeAnswer = '';
-      let optionsAfterAnswer = '';
-      
-      if (q.options && q.options.length > 0) {
-        optionsBeforeAnswer = q.options.map(opt => `
+      const isFillin = (q.type === 'fillin');
+
+      let previewText = '';
+      let bodyContentHtml = '';
+
+      if (isFillin) {
+        // 記述問題の文章整形
+        let fullSentence = '';
+        q.texts.forEach((txt, idx) => {
+          fullSentence += txt;
+          if (idx < q.answers.length) {
+            fullSentence += `「${q.answers[idx]}」`;
+          }
+        });
+        previewText = fullSentence;
+
+        bodyContentHtml = `
+          <div class="fillin-display-text">
+            ${q.texts.map((txt, idx) => {
+              return txt + (idx < q.answers.length ? `<span class="fillin-blank-tag">${q.answers[idx]}</span>` : '');
+            }).join('')}
+          </div>
+        `;
+      } else {
+        // 選択問題
+        previewText = q.text;
+        
+        let optionsBeforeAnswer = q.options.map(opt => `
           <li class="option-display-item">
             <span class="option-text">${opt.text}</span>
           </li>
         `).join('');
 
-        optionsAfterAnswer = q.options.map(opt => `
+        let optionsAfterAnswer = q.options.map(opt => `
           <li class="option-answer-item ${opt.isCorrect ? 'correct-item' : 'incorrect-item'}">
             <span class="${opt.isCorrect ? 'correct-tag' : 'incorrect-tag'}">
               ${opt.isCorrect ? '〇' : '✕'}
@@ -339,34 +471,28 @@ function openWorkbookDetail(index) {
             <span class="option-text">${opt.text}</span>
           </li>
         `).join('');
-      } else {
-        optionsBeforeAnswer = '<li class="option-display-item">選択肢が保存されていません</li>';
-        optionsAfterAnswer = '<li class="option-answer-item">選択肢が保存されていません</li>';
+
+        bodyContentHtml = `
+          <div class="q-card-text">${q.text}</div>
+          <ul class="option-list-before">${optionsBeforeAnswer}</ul>
+          <button class="show-answer-btn">答えを見る</button>
+          <div class="q-card-answer hidden">
+            <div class="answer-title">【選択肢と正解】</div>
+            <ul class="option-answer-list">${optionsAfterAnswer}</ul>
+          </div>
+        `;
       }
 
       qCard.innerHTML = `
         <div class="q-card-header">
           <div class="q-card-header-top">
-            <span>第${qIndex + 1}問</span>
+            <span>第${qIndex + 1}問 (${isFillin ? '記述式' : '選択式'})</span>
             <span class="tap-hint toggle-hint">👆 問題を表示</span>
           </div>
-          <div class="q-card-preview">${q.text}</div>
+          <div class="q-card-preview">${previewText}</div>
         </div>
         <div class="q-card-body hidden">
-          <div class="q-card-text">${q.text}</div>
-          
-          <ul class="option-list-before">
-            ${optionsBeforeAnswer}
-          </ul>
-
-          <button class="show-answer-btn">答えを見る</button>
-          
-          <div class="q-card-answer hidden">
-            <div class="answer-title">【選択肢と正解】</div>
-            <ul class="option-answer-list">
-              ${optionsAfterAnswer}
-            </ul>
-          </div>
+          ${bodyContentHtml}
         </div>
       `;
 
@@ -374,9 +500,6 @@ function openWorkbookDetail(index) {
       const body = qCard.querySelector('.q-card-body');
       const hint = qCard.querySelector('.toggle-hint');
       const preview = qCard.querySelector('.q-card-preview');
-      const showAnswerBtn = qCard.querySelector('.show-answer-btn');
-      const answerBox = qCard.querySelector('.q-card-answer');
-      const optionsBefore = qCard.querySelector('.option-list-before');
 
       header.addEventListener('click', () => {
         const isHidden = body.classList.toggle('hidden');
@@ -389,17 +512,23 @@ function openWorkbookDetail(index) {
         }
       });
 
-      showAnswerBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isAnswerHidden = answerBox.classList.toggle('hidden');
-        if (isAnswerHidden) {
-          showAnswerBtn.textContent = '答えを見る';
-          optionsBefore.classList.remove('hidden');
-        } else {
-          showAnswerBtn.textContent = '答えを非表示';
-          optionsBefore.classList.add('hidden');
-        }
-      });
+      if (!isFillin) {
+        const showAnswerBtn = qCard.querySelector('.show-answer-btn');
+        const answerBox = qCard.querySelector('.q-card-answer');
+        const optionsBefore = qCard.querySelector('.option-list-before');
+
+        showAnswerBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isAnswerHidden = answerBox.classList.toggle('hidden');
+          if (isAnswerHidden) {
+            showAnswerBtn.textContent = '答えを見る';
+            optionsBefore.classList.remove('hidden');
+          } else {
+            showAnswerBtn.textContent = '答えを非表示';
+            optionsBefore.classList.add('hidden');
+          }
+        });
+      }
 
       questionListArea.appendChild(qCard);
     });
@@ -408,21 +537,13 @@ function openWorkbookDetail(index) {
   switchScreen('workbook-detail-screen');
 }
 
-// --- イベントのバインド ---
-saveBtn.addEventListener('click', () => {
-  saveModal.classList.remove('hidden');
-});
-closeModalBtn.addEventListener('click', () => {
-  saveModal.classList.add('hidden');
-});
-addWorkbookBtn.addEventListener('click', () => {
-  createNewWorkbook();
-});
+// モーダルバインド
+saveBtn.addEventListener('click', () => { saveModal.classList.remove('hidden'); });
+closeModalBtn.addEventListener('click', () => { saveModal.classList.add('hidden'); });
+addWorkbookBtn.addEventListener('click', () => { createNewWorkbook(); });
 modalAddWorkbookBtn.addEventListener('click', () => {
   const newIndex = createNewWorkbook();
-  if (newIndex !== null) {
-    saveToWorkbook(newIndex);
-  }
+  if (newIndex !== null) saveToWorkbook(newIndex);
 });
 
 // 出題設定モーダルの制御
@@ -451,7 +572,6 @@ closeConfigModalBtn.addEventListener('click', () => {
 
 function animateSnapSlider() {
   if (sliderAnimationId) cancelAnimationFrame(sliderAnimationId);
-
   const startValue = parseFloat(quizCountSlider.value);
   const targetValue = Math.max(1, Math.round(startValue));
 
@@ -505,11 +625,9 @@ startQuizConfigBtn.addEventListener('click', () => {
 });
 
 
-// ★ ----- クイズ解く機能のロジック ----- ★
+// ★ ----- クイズ解く機能 (記述判定対応) ----- ★
+let isAnswered = false;
 
-let isAnswered = false; // 現在のターンで回答済みかどうかのフラグ
-
-// 配列をシャッフルする関数 (フィッシャー・イエーツ)
 function shuffleArray(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -519,7 +637,6 @@ function shuffleArray(array) {
   return arr;
 }
 
-// クイズ開始
 function startQuiz(sourceQuestions, count, isRandom) {
   lastQuizConfig = { sourceQuestions, count, isRandom };
   
@@ -536,65 +653,92 @@ function startQuiz(sourceQuestions, count, isRandom) {
   renderQuizQuestion();
 }
 
-// クイズ画面の描画
 function renderQuizQuestion() {
-  isAnswered = false; // 回答状態をリセット
+  isAnswered = false;
   
   const currentQ = currentQuizList[currentQuizIndex];
   quizProgressTitle.textContent = `第 ${currentQuizIndex + 1} / ${currentQuizList.length} 問`;
-  quizQuestionText.textContent = currentQ.text;
   
   quizOptionsList.innerHTML = '';
 
-  if (!currentQ.options || currentQ.options.length === 0) {
-    quizOptionsList.innerHTML = '<div class="empty-message">選択肢が設定されていません</div>';
-    quizNextBtn.classList.add('hidden');
-    return;
+  if (currentQ.type === 'fillin') {
+    // --- 記述問題の描画 ---
+    let questionText = currentQ.texts.map((txt, idx) => {
+      return txt + (idx < currentQ.answers.length ? '「 」' : '');
+    }).join('');
+    
+    quizQuestionText.textContent = questionText;
+
+    const fillinContainer = document.createElement('div');
+    fillinContainer.className = 'quiz-fillin-container';
+
+    currentQ.answers.forEach((ans, idx) => {
+      const item = document.createElement('div');
+      item.className = 'quiz-fillin-item';
+      item.innerHTML = `
+        <span style="font-weight:bold; font-size:13px; color:var(--color-primary);">記述 ${idx + 1}:</span>
+        <input type="text" class="quiz-fillin-input" data-index="${idx}" placeholder="解答を入力">
+      `;
+
+      const inputEl = item.querySelector('.quiz-fillin-input');
+      inputEl.addEventListener('input', () => {
+        updateSubmitButtonState();
+      });
+
+      fillinContainer.appendChild(item);
+    });
+
+    quizOptionsList.appendChild(fillinContainer);
+  } else {
+    // --- 選択問題の描画 ---
+    quizQuestionText.textContent = currentQ.text;
+
+    if (!currentQ.options || currentQ.options.length === 0) {
+      quizOptionsList.innerHTML = '<div class="empty-message">選択肢が設定されていません</div>';
+      quizNextBtn.classList.add('hidden');
+      return;
+    }
+
+    currentQ.options.forEach((opt, idx) => {
+      const optBtn = document.createElement('button');
+      optBtn.className = 'quiz-option-btn';
+      optBtn.innerHTML = `<span>${opt.text}</span>`;
+      
+      optBtn.addEventListener('click', () => {
+        if (isAnswered) return;
+        optBtn.classList.toggle('selected');
+        updateSubmitButtonState();
+      });
+      
+      quizOptionsList.appendChild(optBtn);
+    });
   }
 
-  // 選択肢ボタンの生成
-  currentQ.options.forEach((opt, idx) => {
-    const optBtn = document.createElement('button');
-    optBtn.className = 'quiz-option-btn';
-    optBtn.innerHTML = `<span>${opt.text}</span>`;
-    
-    // 選択肢タップで「選択状態」のオン/オフを切り替え（トグル）
-    optBtn.addEventListener('click', () => {
-      if (isAnswered) return; // 回答後はタップ不可
-      optBtn.classList.toggle('selected');
-      updateSubmitButtonState();
-    });
-    
-    quizOptionsList.appendChild(optBtn);
-  });
-
-  // 下部ボタンを「回答する」として初期化
   quizNextBtn.textContent = '回答する';
   quizNextBtn.classList.remove('hidden');
   updateSubmitButtonState();
 }
 
-// 「回答する」ボタンの有効/無効の更新
 function updateSubmitButtonState() {
   if (isAnswered) return;
-  const selectedBtns = quizOptionsList.querySelectorAll('.quiz-option-btn.selected');
-  // 1つ以上選択されていれば押せるようにする
-  if (selectedBtns.length > 0) {
-    quizNextBtn.disabled = false;
-    quizNextBtn.style.opacity = '1';
+  const currentQ = currentQuizList[currentQuizIndex];
+
+  if (currentQ.type === 'fillin') {
+    const inputs = quizOptionsList.querySelectorAll('.quiz-fillin-input');
+    let hasInput = Array.from(inputs).some(input => input.value.trim() !== '');
+    quizNextBtn.disabled = !hasInput;
+    quizNextBtn.style.opacity = hasInput ? '1' : '0.5';
   } else {
-    quizNextBtn.disabled = true;
-    quizNextBtn.style.opacity = '0.5';
+    const selectedBtns = quizOptionsList.querySelectorAll('.quiz-option-btn.selected');
+    quizNextBtn.disabled = selectedBtns.length === 0;
+    quizNextBtn.style.opacity = selectedBtns.length > 0 ? '1' : '0.5';
   }
 }
 
-// 下部ボタン（回答する / 次の問題へ）を押した時の処理
 quizNextBtn.addEventListener('click', () => {
   if (!isAnswered) {
-    // まだ回答していない場合は判定を実行
     checkQuizAnswer();
   } else {
-    // 判定済みの場合は次の問題（または結果画面）へ進行
     currentQuizIndex++;
     if (currentQuizIndex < currentQuizList.length) {
       renderQuizQuestion();
@@ -604,52 +748,73 @@ quizNextBtn.addEventListener('click', () => {
   }
 });
 
-// 答え合わせ（判定）処理
+// 答え合わせ（判定）
 function checkQuizAnswer() {
   isAnswered = true;
   quizNextBtn.disabled = false;
   quizNextBtn.style.opacity = '1';
 
   const currentQ = currentQuizList[currentQuizIndex];
-  const allBtns = quizOptionsList.querySelectorAll('.quiz-option-btn');
 
-  let isFullyCorrect = true; // すべての正解を正しく選べているか
+  if (currentQ.type === 'fillin') {
+    // 記述問題の採点
+    const inputs = quizOptionsList.querySelectorAll('.quiz-fillin-input');
+    let isAllCorrect = true;
 
-  allBtns.forEach((btn, idx) => {
-    btn.disabled = true; // ボタン操作をロック
-    const opt = currentQ.options[idx];
-    const isSelected = btn.classList.contains('selected');
+    inputs.forEach((input, idx) => {
+      input.disabled = true;
+      const userAns = input.value.trim();
+      const correctAns = currentQ.answers[idx].trim();
 
-    if (opt.isCorrect) {
-      if (isSelected) {
-        // 【正解の選択肢】を【選んでいた】場合
-        btn.classList.remove('selected');
-        btn.classList.add('correct-choice');
-        btn.innerHTML += ' <span>⭕ 正解</span>';
+      const item = input.closest('.quiz-fillin-item');
+
+      if (userAns === correctAns) {
+        item.style.borderColor = '#e55353';
+        item.style.backgroundColor = '#fff5f5';
+        item.innerHTML += `<span style="color:#e55353; font-weight:bold;">⭕</span>`;
       } else {
-        // 【正解の選択肢】を【選んでいなかった】場合
-        isFullyCorrect = false;
-        btn.classList.add('correct-choice');
-        btn.style.opacity = '0.7'; // 選び損ねた正解は少し薄く表示
-        btn.innerHTML += ' <span>⭕ 正解</span>';
+        isAllCorrect = false;
+        item.style.borderColor = '#4a90e2';
+        item.style.backgroundColor = '#f0f7ff';
+        item.innerHTML += `<span style="color:#4a90e2; font-weight:bold;">❌ (正解: ${correctAns})</span>`;
       }
-    } else {
-      if (isSelected) {
-        // 【不正解の選択肢】を【選んでしまった】場合
-        isFullyCorrect = false;
-        btn.classList.remove('selected');
-        btn.classList.add('incorrect-choice');
-        btn.innerHTML += ' <span>❌ 不正解</span>';
-      }
-    }
-  });
+    });
 
-  // 完全正解（正解のものをすべて選び、不正解を選ばなかった）場合のみスコア加算
-  if (isFullyCorrect) {
-    score++;
+    if (isAllCorrect) score++;
+  } else {
+    // 選択問題の採点
+    const allBtns = quizOptionsList.querySelectorAll('.quiz-option-btn');
+    let isFullyCorrect = true;
+
+    allBtns.forEach((btn, idx) => {
+      btn.disabled = true;
+      const opt = currentQ.options[idx];
+      const isSelected = btn.classList.contains('selected');
+
+      if (opt.isCorrect) {
+        if (isSelected) {
+          btn.classList.remove('selected');
+          btn.classList.add('correct-choice');
+          btn.innerHTML += ' <span>⭕ 正解</span>';
+        } else {
+          isFullyCorrect = false;
+          btn.classList.add('correct-choice');
+          btn.style.opacity = '0.7';
+          btn.innerHTML += ' <span>⭕ 正解</span>';
+        }
+      } else {
+        if (isSelected) {
+          isFullyCorrect = false;
+          btn.classList.remove('selected');
+          btn.classList.add('incorrect-choice');
+          btn.innerHTML += ' <span>❌ 不正解</span>';
+        }
+      }
+    });
+
+    if (isFullyCorrect) score++;
   }
 
-  // ボタンの表示を「次の問題へ」に変更
   if (currentQuizIndex < currentQuizList.length - 1) {
     quizNextBtn.textContent = '次の問題へ ➔';
   } else {
@@ -657,15 +822,12 @@ function checkQuizAnswer() {
   }
 }
 
-// クイズの中断（✕ボタン）
 quitQuizBtn.addEventListener('click', () => {
-  const isConfirmed = confirm('出題を中断して戻りますか？');
-  if (isConfirmed) {
+  if (confirm('出題を中断して戻りますか？')) {
     switchScreen('workbook-detail-screen');
   }
 });
 
-// 結果画面の表示
 function showQuizResult() {
   const total = currentQuizList.length;
   const percentage = Math.round((score / total) * 100);
@@ -676,12 +838,10 @@ function showQuizResult() {
   switchScreen('quiz-result-screen');
 }
 
-// もう一度解くボタン
 resultRetryBtn.addEventListener('click', () => {
   startQuiz(lastQuizConfig.sourceQuestions, lastQuizConfig.count, lastQuizConfig.isRandom);
 });
 
-// ホームに戻るボタン
 resultHomeBtn.addEventListener('click', () => {
   switchScreen('home-screen');
 });

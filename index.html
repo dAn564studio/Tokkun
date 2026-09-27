@@ -56,42 +56,62 @@
         </div>
       </div>
 
-      <div class="question-input-container">
-        <textarea class="question-input" placeholder="問題を入力してください"></textarea>
-      </div>
-
-      <div class="options-scroll-area">
-        <div class="options-list">
-          <div class="option-item">
-            <button class="toggle-correct-btn correct">〇</button>
-            <input type="text" class="option-input" placeholder="選択肢を入力してください">
-            <button class="remove-option-btn">－</button>
-          </div>
-          <div class="option-item">
-            <button class="toggle-correct-btn incorrect">✕</button>
-            <input type="text" class="option-input" placeholder="選択肢を入力してください">
-            <button class="remove-option-btn">－</button>
-          </div>
-          <div class="option-item">
-            <button class="toggle-correct-btn correct">〇</button>
-            <input type="text" class="option-input" placeholder="選択肢を入力してください">
-            <button class="remove-option-btn">－</button>
-          </div>
-          <div class="option-item">
-            <button class="toggle-correct-btn incorrect">✕</button>
-            <input type="text" class="option-input" placeholder="選択肢を入力してください">
-            <button class="remove-option-btn">－</button>
-          </div>
+      <!-- 選択問題用入力エリア -->
+      <div id="choice-create-area">
+        <div class="question-input-container">
+          <textarea class="question-input" placeholder="問題を入力してください"></textarea>
         </div>
 
-        <button class="add-option-btn">＋</button>
+        <div class="options-scroll-area">
+          <div class="options-list">
+            <div class="option-item">
+              <button class="toggle-correct-btn correct">〇</button>
+              <input type="text" class="option-input" placeholder="選択肢を入力してください">
+              <button class="remove-option-btn">－</button>
+            </div>
+            <div class="option-item">
+              <button class="toggle-correct-btn incorrect">✕</button>
+              <input type="text" class="option-input" placeholder="選択肢を入力してください">
+              <button class="remove-option-btn">－</button>
+            </div>
+            <div class="option-item">
+              <button class="toggle-correct-btn correct">〇</button>
+              <input type="text" class="option-input" placeholder="選択肢を入力してください">
+              <button class="remove-option-btn">－</button>
+            </div>
+            <div class="option-item">
+              <button class="toggle-correct-btn incorrect">✕</button>
+              <input type="text" class="option-input" placeholder="選択肢を入力してください">
+              <button class="remove-option-btn">－</button>
+            </div>
+          </div>
+
+          <button class="add-option-btn">＋</button>
+        </div>
       </div>
 
+      <!-- ★ 記述問題用入力エリア (初期表示は非表示) -->
+      <div id="fillin-create-area" class="hidden">
+        <div class="fillin-instruction">
+          文章と正解を入力してください（空欄は最大3個）
+        </div>
+        
+        <div id="fillin-parts-container" class="fillin-parts-container">
+          <!-- JSで動的に前後の文章と記述正解欄を差し込みます -->
+        </div>
+
+        <div class="fillin-controls">
+          <button id="fillin-remove-btn" class="fillin-ctrl-btn remove">－ 記述箇所を削除</button>
+          <button id="fillin-add-btn" class="fillin-ctrl-btn add">＋ 記述箇所を追加</button>
+        </div>
+      </div>
+
+      <!-- 下部 形式切り替えエリア -->
       <div class="create-footer">
-        <div class="format-select-box">
-          ここでどんな形式の問題にするか決められる様にする予定
+        <div class="format-select-group">
+          <button id="format-choice-btn" class="format-tab-btn active">選択問題</button>
+          <button id="format-fillin-btn" class="format-tab-btn">記述問題</button>
         </div>
-        <div class="horizontal-scroll-bar"></div>
       </div>
     </div>
 
