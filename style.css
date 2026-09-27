@@ -266,6 +266,8 @@ body[data-screen="workbook-detail-screen"] {
   align-items: center;
   flex-shrink: 0;
   background-color: transparent;
+  padding: 0;        /* ★ 追加：ボタン特有の内部余白を消去 */
+  line-height: 1;   /* ★ 追加：行の高さによる下寄り・ずれを解消 */
 }
 
 .toggle-correct-btn.correct {
