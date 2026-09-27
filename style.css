@@ -267,6 +267,8 @@ body[data-screen="workbook-detail-screen"] {
   background-color: transparent;
   padding: 0;
   line-height: 1;
+  padding-top: 1.8px;   /* 数値を大きくすると「下」に下がります */
+  padding-left: 0.6px;  /* 数値を大きくすると「右」に移動します */
 }
 
 .toggle-correct-btn.correct {
