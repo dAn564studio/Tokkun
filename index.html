@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>解っくん - N高 テスト対策</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- 1. ホーム画面 (解くタブ) -->
+    <div id="home-screen" class="screen">
+      <h1 class="app-title">N高 テスト対策</h1>
+      <p class="app-subtitle">みんなで解いて、30点以下を避けよう！</p>
+      
+      <div class="main-action-area">
+        <button id="main-start-btn" class="btn btn-primary start-massive-btn">
+          出題
+        </button>
+      </div>
+
+      <div class="recent-shortcut">
+        <h3 class="recent-title">最近解いた問題集を解く</h3>
+        <div class="recent-card">
+          <span class="recent-icon">🏃‍♂️</span>
+          <span class="recent-text">（準備中）ショートカット機能</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 問題集ページ (問題集タブ) -->
+    <div id="workbook-screen" class="screen hidden">
+      <div class="screen-header">
+        <div style="width: 28px;"></div> <!-- レイアウト調整用 -->
+        <h2 class="screen-title">問題集</h2>
+        <div style="width: 28px;"></div>
+      </div>
+
+      <div class="workbook-scroll-area">
+        <div class="workbook-list" id="workbook-list">
+        </div>
+      </div>
+
+      <button id="add-workbook-btn" class="btn btn-primary add-workbook-btn">
+        問題集を追加 ＋
+      </button>
+    </div>
+
+    <!-- 3. 問題作成画面 (作るタブ) -->
+    <div id="create-screen" class="screen hidden">
+      <div class="create-header">
+        <h2 class="screen-title">問題を作る</h2>
+        <div class="header-action-btns">
+          <button id="save-btn" class="small-btn btn-primary">保存</button>
+          <button class="small-btn btn-primary">保存して投稿</button>
+        </div>
+      </div>
+
+      <div class="question-input-container">
+        <textarea class="question-input" placeholder="問題を入力してください"></textarea>
+      </div>
+
+      <div class="options-scroll-area">
+        <div class="options-list">
+          <div class="option-item">
+            <button class="toggle-correct-btn correct">〇</button>
+            <input type="text" class="option-input" placeholder="選択肢を入力してください">
+            <button class="remove-option-btn">－</button>
+          </div>
+          <div class="option-item">
+            <button class="toggle-correct-btn incorrect">✕</button>
+            <input type="text" class="option-input" placeholder="選択肢を入力してください">
+            <button class="remove-option-btn">－</button>
+          </div>
+          <div class="option-item">
+            <button class="toggle-correct-btn correct">〇</button>
+            <input type="text" class="option-input" placeholder="選択肢を入力してください">
+            <button class="remove-option-btn">－</button>
+          </div>
+          <div class="option-item">
+            <button class="toggle-correct-btn incorrect">✕</button>
+            <input type="text" class="option-input" placeholder="選択肢を入力してください">
+            <button class="remove-option-btn">－</button>
+          </div>
+        </div>
+
+        <button class="add-option-btn">＋</button>
+      </div>
+
+      <div class="create-footer">
+        <div class="format-select-box">
+          ここでどんな形式の問題にするか決められる様にする予定
+        </div>
+        <div class="horizontal-scroll-bar"></div>
+      </div>
+    </div>
+
+    <!-- 4. 問題集詳細 (問題一覧) ページ -->
+    <div id="workbook-detail-screen" class="screen hidden">
+      <div class="screen-header">
+        <button id="back-from-workbook-detail-btn" class="icon-btn" aria-label="戻る">←</button>
+        <h2 class="screen-title" id="detail-workbook-title">問題集名</h2>
+        <button id="play-workbook-btn" class="play-btn" aria-label="再生">▶</button>
+      </div>
+      
+      <div class="workbook-scroll-area" id="question-list-area">
+        <!-- JSで問題カードが表示されます -->
+      </div>
+    </div>
+
+    <!-- 5. 保存先選択ポップアップ (モーダル) -->
+    <div id="save-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3 class="modal-title">保存先を選択</h3>
+        
+        <div class="workbook-scroll-area" style="max-height: 200px; margin-bottom: 12px;">
+          <div class="workbook-list" id="modal-workbook-list">
+            <!-- JSで動的に追加されます -->
+          </div>
+        </div>
+
+        <button id="modal-add-workbook-btn" class="btn btn-secondary">
+          新しく作って保存 ＋
+        </button>
+        <button id="close-modal-btn" class="btn cancel-btn">
+          キャンセル
+        </button>
+      </div>
+    </div>
+
+    <!-- 6. 出題設定ポップアップ (モーダル) -->
+    <div id="quiz-config-modal" class="modal hidden">
+      <div class="modal-content quiz-config-content">
+        <div class="config-header">
+          <button id="close-config-modal-btn" class="icon-btn" aria-label="戻る">←</button>
+          <h3 class="modal-title">出題設定</h3>
+          <div style="width: 28px;"></div>
+        </div>
+
+        <div class="config-body">
+          <div class="config-item">
+            <label class="config-label">出題数</label>
+            <div class="slider-container">
+              <input type="range" id="quiz-count-slider" min="1" max="10" step="0.01" value="10" class="quiz-slider">
+              <span id="quiz-count-display" class="slider-value">10問</span>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <button id="quiz-random-toggle" class="toggle-switch-btn active">
+              <span>ランダム出題</span>
+              <span id="random-status-text" class="toggle-status">ON</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="start-quiz-config-btn" class="btn btn-primary config-start-btn">
+          スタート
+        </button>
+      </div>
+    </div>
+
+    <!-- ★ 7. クイズ実行画面 -->
+    <div id="quiz-play-screen" class="screen hidden">
+      <div class="screen-header">
+        <button id="quit-quiz-btn" class="icon-btn" aria-label="中断">✕</button>
+        <h2 class="screen-title" id="quiz-progress-title">第 1 / 5 問</h2>
+        <div style="width: 28px;"></div>
+      </div>
+
+      <div class="quiz-play-container">
+        <div class="quiz-question-box" id="quiz-question-text">
+          問題文がここに入ります
+        </div>
+
+        <div class="quiz-options-list" id="quiz-options-list">
+          <!-- JSで選択肢ボタンを動的生成します -->
+        </div>
+
+        <button id="quiz-next-btn" class="btn btn-primary quiz-next-btn hidden">
+          次の問題へ ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- ★ 8. クイズ結果画面 -->
+    <div id="quiz-result-screen" class="screen hidden">
+      <div class="result-container">
+        <div class="result-icon">🎉</div>
+        <h2 class="result-title">お疲れ様でした！</h2>
+        
+        <div class="score-card">
+          <div class="score-label">正解数</div>
+          <div class="score-value" id="result-score-text">0 / 0</div>
+          <div class="score-percentage" id="result-percentage-text">正解率 0%</div>
+        </div>
+
+        <div class="result-actions">
+          <button id="result-retry-btn" class="btn btn-primary">
+            もう一度解く 🔄
+          </button>
+          <button id="result-home-btn" class="btn btn-secondary">
+            ホームに戻る 🏠
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ボトムナビゲーション (タブバー) -->
+    <nav class="bottom-nav">
+      <div class="nav-indicator" id="nav-indicator"></div>
+      <button class="nav-item active" data-target="home-screen" id="nav-home">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-text">解く</span>
+      </button>
+      <button class="nav-item" data-target="workbook-screen" id="nav-workbook">
+        <span class="nav-icon">📚</span>
+        <span class="nav-text">問題集</span>
+      </button>
+      <button class="nav-item" data-target="create-screen" id="nav-create">
+        <span class="nav-icon">✏️</span>
+        <span class="nav-text">作る</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

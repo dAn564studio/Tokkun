@@ -1,0 +1,1057 @@
+/* カラー変数 */
+:root {
+  --color-primary: #4aa781;      /* メインのエメラルドグリーン */
+  --color-primary-dark: #378665; /* ボタンの立体影用 */
+  --color-secondary: #07774f;    /* サブの濃いグリーン */
+  --color-secondary-dark: #045337;
+  --color-text: #024544;         /* 文字用のディープグリーン */
+  --color-bg: #eaf5f1;           /* 全体の背景 */
+}
+
+/* ★ すべての要素でタップ時の青いハイライトを削除 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ★ ボタンや入力フォームなどのフォーカス時・選択時の青い枠線を削除 */
+button, input, textarea, select {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus, input:focus, textarea:focus {
+  outline: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  /* 背景色が滑らかに変わるアニメーション効果を追加 */
+  transition: background-color 0.4s ease;
+  
+  /* テキスト選択（長押しで青く選択される挙動）をアプリらしく無効化 */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* テキスト入力欄はテキスト選択できるように例外設定 */
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* --- 画面ごとのテーマ背景色 --- */
+/* ホーム画面（既存のカラーを維持） */
+body[data-screen="home-screen"],
+body:not([data-screen]) {
+  background-color: #eaf5f1;
+}
+
+/* 問題作成画面（温かみのあるアプリコット・イエロー系） */
+body[data-screen="create-screen"] {
+  background-color: #eaf5f1;
+}
+
+/* 出題モード選択画面 */
+body[data-screen="solve-menu-screen"] {
+  background-color: #E1E6E8;
+}
+
+/* 問題集一覧画面 */
+body[data-screen="workbook-screen"] {
+  background-color: #eaf5f1;
+}
+
+/* 問題集詳細画面 */
+body[data-screen="workbook-detail-screen"] {
+  background-color: #c2d7d1;
+}
+
+.app-container {
+  background: white;
+  padding: 24px;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(2, 69, 68, 0.08);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 非表示用クラス */
+.hidden {
+  display: none !important;
+}
+
+/* 共通ヘッダーデザイン */
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.screen-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--color-text);
+}
+
+/* ----- ホーム画面 ----- */
+.app-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: var(--color-text);
+}
+
+.app-subtitle {
+  font-size: 14px;
+  color: #5c8976;
+  margin: 0 0 32px 0;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn {
+  width: 100%;
+  padding: 16px 0;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  position: relative;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 5px 0 var(--color-primary-dark);
+}
+
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
+  box-shadow: 0 5px 0 var(--color-secondary);
+}
+
+.btn-secondary:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--color-secondary);
+}
+
+
+/* ----- 問題作成画面 ----- */
+.create-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.header-action-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.small-btn {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.question-input-container {
+  margin-bottom: 16px;
+}
+
+.question-input {
+  width: 100%;
+  height: 80px;
+  padding: 12px;
+  border: 2px solid var(--color-primary);
+  border-radius: 16px;
+  font-size: 14px;
+  color: var(--color-text);
+  box-sizing: border-box;
+  resize: none;
+  font-family: inherit;
+  background-color: #f9fbfb;
+}
+
+.question-input::placeholder {
+  color: #729c8c;
+  text-align: center;
+}
+
+.options-scroll-area {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 12px;
+}
+
+.options-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.options-scroll-area::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 3px;
+}
+
+.options-scroll-area::-webkit-scrollbar-track {
+  background-color: #eaf5f1;
+  border-radius: 3px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-correct-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: transparent;
+}
+
+.toggle-correct-btn.correct {
+  color: #e55353;
+  border: 2px solid #e55353;
+}
+
+.toggle-correct-btn.incorrect {
+  color: #4a90e2;
+  border: 2px solid #4a90e2;
+}
+
+.option-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid var(--color-primary);
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--color-text);
+  box-sizing: border-box;
+  background-color: #f9fbfb;
+}
+
+.option-input::placeholder {
+  color: #729c8c;
+  text-align: center;
+}
+
+.remove-option-btn {
+  width: 28px;
+  height: 28px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.add-option-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.create-footer {
+  border-top: 1px solid #d0e5dd;
+  padding-top: 12px;
+}
+
+.format-select-box {
+  font-size: 12px;
+  color: #729c8c;
+  padding: 14px 8px;
+  background-color: #f4f9f7;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.horizontal-scroll-bar {
+  width: 60px;
+  height: 6px;
+  background-color: var(--color-primary);
+  border-radius: 3px;
+  margin: 0 auto;
+}
+
+
+/* ----- 問題集ページデザイン ----- */
+.workbook-scroll-area {
+  max-height: 480px; /* 280px から 480px に広げて一番下まで表示可能に */
+  overflow-y: auto;
+  margin-bottom: 12px;
+  padding-right: 6px;
+}
+
+/* スクロールバーの追加（問題作成画面と同じ緑の棒） */
+.workbook-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workbook-scroll-area::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 3px;
+}
+
+.workbook-scroll-area::-webkit-scrollbar-track {
+  background-color: #eaf5f1;
+  border-radius: 3px;
+}
+
+
+.workbook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workbook-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border: 2px solid var(--color-primary);
+  border-radius: 16px;
+  background-color: #f9fbfb;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.workbook-card:active {
+  transform: scale(0.98);
+}
+
+.workbook-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.workbook-icon {
+  font-size: 20px;
+}
+
+.workbook-name {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+.workbook-count {
+  font-size: 12px;
+  color: #729c8c;
+  font-weight: bold;
+}
+
+.workbook-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-icon-btn {
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.action-icon-btn:hover {
+  background-color: #e0f0ea;
+}
+
+.add-workbook-btn {
+  margin-top: 8px;
+}
+
+.play-btn {
+  width: 38px;
+  height: 38px;
+  background-color: var(--color-secondary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding-left: 8px;
+  transition: transform 0.1s ease;
+}
+
+.play-btn:active {
+  transform: scale(0.92);
+}
+
+
+/* ----- モーダル (ポップアップ) デザイン ----- */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(2, 69, 68, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 24px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 320px;
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+.cancel-btn {
+  margin-top: 12px;
+  background-color: #f4f9f7;
+  color: #729c8c;
+  box-shadow: none;
+}
+
+.cancel-btn:active {
+  background-color: #eaf5f1;
+  transform: none;
+}
+
+
+/* ----- 出題設定モーダル用スタイル ----- */
+.quiz-config-content {
+  padding: 20px 24px 24px;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.config-header .modal-title {
+  margin: 0;
+}
+
+.config-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.config-item {
+  text-align: left;
+}
+
+.config-label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quiz-slider {
+  flex: 1;
+  accent-color: var(--color-primary);
+  height: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.quiz-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slider-value {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--color-secondary);
+  min-width: 45px;
+  text-align: right;
+}
+
+.toggle-switch-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #f4f9f7;
+  border: 2px solid var(--color-primary);
+  border-radius: 14px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.toggle-switch-btn.active {
+  background-color: #eaf5f1;
+  border-color: var(--color-primary);
+}
+
+.toggle-status {
+  padding: 3px 10px;
+  border-radius: 12px;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.toggle-switch-btn:not(.active) .toggle-status {
+  background-color: #a0c2b5;
+}
+
+.config-start-btn {
+  margin-top: 8px;
+}
+
+
+/* ----- 問題集詳細ページ (問題リスト & 答え表示) ----- */
+.empty-message {
+  text-align: center;
+  color: #729c8c;
+  margin-top: 40px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.question-card {
+  background-color: #f9fbfb;
+  border: 2px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.q-card-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.q-card-header-top {
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.q-card-preview {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-text);
+  font-weight: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.q-card-preview.hidden {
+  display: none;
+}
+
+.tap-hint {
+  font-size: 11px;
+  color: #729c8c;
+  font-weight: normal;
+}
+
+.q-card-body {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #c0ded3;
+}
+
+.q-card-text {
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.5;
+  font-weight: bold;
+}
+
+/* 答えを見る前の選択肢リスト */
+.option-list-before {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-list-before.hidden {
+  display: none;
+}
+
+.option-display-item {
+  font-size: 14px;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e0eee8;
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+/* 「答えを見る」ボタンのデザイン */
+.show-answer-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--color-secondary);
+  background-color: white;
+  border: 1.5px solid var(--color-secondary);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.show-answer-btn:active {
+  background-color: #eaf5f1;
+  transform: scale(0.98);
+}
+
+.q-card-answer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #c0ded3;
+}
+
+.answer-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--color-secondary);
+  margin-bottom: 8px;
+}
+
+.option-answer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-answer-item {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e0eee8;
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+.option-answer-item.correct-item {
+  border-color: #e55353;
+  background-color: #fff5f5;
+}
+
+.option-answer-item.incorrect-item {
+  border-color: #e0eee8;
+  background-color: #ffffff;
+}
+
+.correct-tag {
+  color: #e55353;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.incorrect-tag {
+  color: #4a90e2;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+
+/* --- レイアウト調整 (ボトムナビゲーション対応) --- */
+.app-container {
+  /* ボトムナビゲーションの下部固定の基準にする */
+  position: relative;
+  /* ナビゲーションの高さ分（約70px）下部に余白を空ける */
+  padding-bottom: 90px; 
+  height: 680px;/* ★ 追記: 高さを固定して画面切り替え時のガタつきを防ぐ */
+}
+
+/* ★ 追加: タブバーのアニメーション背景 */
+.nav-indicator {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  background-color: #eaf5f1; /* 薄い緑色 */
+  border-radius: 16px;
+  z-index: 0;
+  /* スーッと動くアニメーション設定 */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 画面ごとのタイトルマージン調整 */
+.create-header {
+  margin-top: 10px;
+}
+
+/* --- ホーム画面 新要素 --- */
+.main-action-area {
+  margin: 30px 0;
+}
+
+.start-massive-btn {
+  font-size: 24px;
+  padding: 24px 0;
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--color-primary-dark);
+}
+.start-massive-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 var(--color-primary-dark);
+}
+
+.recent-shortcut {
+  text-align: left;
+  margin-top: 20px;
+}
+
+.recent-title {
+  font-size: 14px;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.recent-card {
+  background-color: #f4f9f7;
+  border: 2px dashed #c0ded3;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #729c8c;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* --- ボトムナビゲーション (タブバー) --- */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background-color: white;
+  border-top: 2px solid #e0eee8;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 0 0 24px 24px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  z-index: 100;
+}
+
+.nav-item {
+  position: relative; /* インジケーターより手前に表示 */
+  z-index: 1;
+  flex: 1;            /* 3つのタブの幅を均等にする */
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #a0c2b5;
+  transition: all 0.2s ease;
+  border-radius: 16px;
+}
+
+/* ★ 既存のホバー背景を透明にする（インジケーターが代わりになるため） */
+.nav-item:hover {
+  background-color: transparent; 
+}
+
+.nav-icon {
+  font-size: 22px;
+  filter: grayscale(100%) opacity(0.5); /* 初期状態はグレーっぽく */
+  transition: all 0.2s ease;
+}
+
+.nav-text {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* アクティブなタブのスタイル */
+.nav-item.active {
+  color: var(--color-primary);
+}
+
+.nav-item.active .nav-icon {
+  filter: grayscale(0%) opacity(1);
+  transform: scale(1.15);
+}
+
+/* ----- クイズ実行画面 ----- */
+body[data-screen="quiz-play-screen"] {
+  background-color: #eaf5f1;
+}
+
+.quiz-play-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.quiz-question-box {
+  background-color: #f9fbfb;
+  border: 2px solid var(--color-primary);
+  border-radius: 20px;
+  padding: 18px 16px;
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--color-text);
+  line-height: 1.5;
+  text-align: left;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.quiz-options-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 選択肢を中央に寄せる */
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 16px; /* 選択肢と下部ボタンとの間に十分な距離（余白）を設置 */
+}
+
+.quiz-option-btn {
+  width: 88%; /* 幅を少し細く変更（デフォルトは100%） */
+  padding: 14px 16px;
+  background-color: white;
+  border: 2px solid #e0eee8;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.quiz-option-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* 回答後の正負判定スタイル */
+.quiz-option-btn.correct-choice {
+  border-color: #e55353 !important;
+  background-color: #fff5f5 !important;
+  color: #e55353 !important;
+}
+
+.quiz-option-btn.incorrect-choice {
+  border-color: #4a90e2 !important;
+  background-color: #f0f7ff !important;
+  color: #4a90e2 !important;
+  opacity: 0.7;
+}
+
+.quiz-option-btn:disabled {
+  cursor: default;
+}
+
+.quiz-next-btn {
+  margin-top: auto;
+  margin-bottom: 8px; /* ボタン位置を少し下に移動 */
+}
+
+/* ----- クイズ結果画面 ----- */
+body[data-screen="quiz-result-screen"] {
+  background-color: #eaf5f1;
+}
+
+.result-container {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.result-icon {
+  font-size: 48px;
+}
+
+.result-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.score-card {
+  background-color: #f9fbfb;
+  border: 2px solid var(--color-primary);
+  border-radius: 20px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.score-label {
+  font-size: 13px;
+  color: #729c8c;
+  font-weight: bold;
+}
+
+.score-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-secondary);
+  margin: 8px 0;
+}
+
+.score-percentage {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+.result-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+
+/* 選択肢が選ばれている時のスタイル */
+.quiz-option-btn.selected {
+  border-color: var(--color-primary) !important;
+  background-color: #eaf5f1 !important;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
