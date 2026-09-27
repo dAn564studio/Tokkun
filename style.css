@@ -30,10 +30,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  
+  /* ★ 高さを画面ぴったりに固定し、外側のスクロールを禁止します */
+  height: 100vh;
+  height: 100dvh;           /* モバイルのツールバーの高さを考慮 */
   margin: 0;
   padding: 16px;
   box-sizing: border-box;
+  overflow: hidden;         /* 背景全体のスクロールを無効化 */
+  overscroll-behavior: none;/* スマホで上下に引っ張ったときのバウンス（揺れ）を防止 */
+  
   /* 背景色が滑らかに変わるアニメーション効果を追加 */
   transition: background-color 0.4s ease;
   
@@ -267,7 +273,7 @@ body[data-screen="workbook-detail-screen"] {
   background-color: transparent;
   padding: 0;
   line-height: 1;
-  padding-top: 1.8px;   /* 数値を大きくすると「下」に下がります */
+  padding-top: 1.65px;   /* 数値を大きくすると「下」に下がります */
   padding-left: 0.6px;  /* 数値を大きくすると「右」に移動します */
 }
 
