@@ -856,7 +856,7 @@ function checkQuizAnswer() {
   if (currentQuizIndex < currentQuizList.length - 1) {
     quizNextBtn.textContent = '次の問題へ ➔';
   } else {
-    quizNextBtn.textContent = '結果を見る 🎉';
+    quizNextBtn.textContent = '結果を見る';
   }
 }
 
