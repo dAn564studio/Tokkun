@@ -1,7 +1,27 @@
 // --- データ管理 ---
-let workbooksData = [
-  { name: '無名の問題集', questions: [] }
-];
+const STORAGE_KEY = 'n_kou_test_workbooks';
+
+// localStorageからデータを読み込む関数
+function loadWorkbooksFromStorage() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error('localStorageからのデータ読み込みに失敗しました:', e);
+    }
+  }
+  return [
+    { name: '無名の問題集', questions: [] }
+  ];
+}
+
+// localStorageへデータを保存する関数
+function saveWorkbooksToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(workbooksData));
+}
+
+let workbooksData = loadWorkbooksFromStorage();
 
 let currentWorkbookIndex = 0;
 let isRandomOrder = true;
@@ -227,14 +247,14 @@ function renderFillinForm() {
     textInput.className = 'fillin-text-input';
     textInput.dataset.type = 'text';
     textInput.dataset.index = i;
-    textInput.placeholder = i === 0 ? '前の文字 (例: 一匹のダンゴムシの足は合計)' : '中間の文字';
+    textInput.placeholder = i === 0 ? '前の文字' : '中間の文字';
 
     // 記述箇所の正解入力欄
     const answerBox = document.createElement('div');
     answerBox.className = 'fillin-answer-box';
     answerBox.innerHTML = `
-      <span class="fillin-answer-label">記述箇所 ${i + 1} の正解</span>
-      <input type="text" class="fillin-answer-input" data-type="answer" data-index="${i}" placeholder="正解を入力 (例: 14)">
+      <span class="fillin-answer-label">記述箇所 ${i + 1} </span>
+      <input type="text" class="fillin-answer-input" data-type="answer" data-index="${i}" placeholder="正解を入力">
     `;
 
     fillinPartsContainer.appendChild(textInput);
@@ -247,7 +267,7 @@ function renderFillinForm() {
   lastTextInput.className = 'fillin-text-input';
   lastTextInput.dataset.type = 'text';
   lastTextInput.dataset.index = fillinCount;
-  lastTextInput.placeholder = '後の文字 (例: 本ある。)';
+  lastTextInput.placeholder = '後の文字';
   fillinPartsContainer.appendChild(lastTextInput);
 }
 
@@ -339,6 +359,7 @@ function createNewWorkbook() {
   if (name === null || name.trim() === '') return null;
   
   workbooksData.push({ name: name.trim(), questions: [] });
+  saveWorkbooksToStorage();
   renderWorkbooks();
   return workbooksData.length - 1; 
 }
@@ -350,6 +371,7 @@ function renameWorkbook(index) {
   if (newName === null || newName.trim() === '') return;
   
   workbooksData[index].name = newName.trim();
+  saveWorkbooksToStorage();
   renderWorkbooks();
 }
 
@@ -359,6 +381,7 @@ function deleteWorkbook(index) {
   
   if (isConfirmed) {
     workbooksData.splice(index, 1);
+    saveWorkbooksToStorage();
     renderWorkbooks();
   }
 }
@@ -410,6 +433,7 @@ function saveToWorkbook(index) {
   }
 
   alert(`「${workbooksData[index].name}」に問題を保存しました！`);
+  saveWorkbooksToStorage();
   saveModal.classList.add('hidden');
   renderWorkbooks();
 }
@@ -768,15 +792,29 @@ function checkQuizAnswer() {
 
       const item = input.closest('.quiz-fillin-item');
 
+      // ⭕/❌ マーク用の要素を作成（入力値を維持）
+      const resultMark = document.createElement('span');
+      resultMark.className = 'quiz-fillin-mark';
+
       if (userAns === correctAns) {
-        item.style.borderColor = '#e55353';
-        item.style.backgroundColor = '#fff5f5';
-        item.innerHTML += `<span style="color:#e55353; font-weight:bold;">⭕</span>`;
+        item.classList.add('correct-choice');
+        resultMark.style.color = '#e55353';
+        resultMark.style.fontWeight = 'bold';
+        resultMark.textContent = '⭕';
+        item.appendChild(resultMark);
       } else {
         isAllCorrect = false;
-        item.style.borderColor = '#4a90e2';
-        item.style.backgroundColor = '#f0f7ff';
-        item.innerHTML += `<span style="color:#4a90e2; font-weight:bold;">❌ (正解: ${correctAns})</span>`;
+        item.classList.add('incorrect-choice');
+        resultMark.style.color = '#4a90e2';
+        resultMark.style.fontWeight = 'bold';
+        resultMark.textContent = '❌';
+        item.appendChild(resultMark);
+
+        // 正解テキストを記述枠（item）のすぐ下に配置
+        const correctText = document.createElement('div');
+        correctText.className = 'quiz-fillin-correct-text';
+        correctText.textContent = `正解: ${correctAns}`;
+        item.insertAdjacentElement('afterend', correctText);
       }
     });
 

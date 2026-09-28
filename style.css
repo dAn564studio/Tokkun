@@ -936,11 +936,20 @@ body[data-screen="quiz-play-screen"] {
   background-color: #eaf5f1;
 }
 
+/* クイズ画面全体を親要素いっぱいに広げる */
+#quiz-play-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* コンテナを上下いっぱいに伸ばす */
 .quiz-play-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 100%;
+  flex: 1;
 }
 
 .quiz-question-box {
@@ -959,18 +968,20 @@ body[data-screen="quiz-play-screen"] {
   box-sizing: border-box;
 }
 
+/* 中間の選択肢・記述入力エリアに flex: 1 を与えて余白を吸収させる */
 .quiz-options-list {
   display: flex;
   flex-direction: column;
-  align-items: center; /* 選択肢を中央に寄せる */
+  align-items: center;
   gap: 10px;
+  flex: 1;
   max-height: 280px;
   overflow-y: auto;
-  margin-bottom: 16px; /* 選択肢と下部ボタンとの間に十分な距離（余白）を設置 */
+  margin-bottom: 0;
 }
 
 .quiz-option-btn {
-  width: 88%; /* 幅を少し細く変更（デフォルトは100%） */
+  width: 88%;
   padding: 14px 16px;
   background-color: white;
   border: 2px solid #e0eee8;
@@ -1009,9 +1020,10 @@ body[data-screen="quiz-play-screen"] {
   cursor: default;
 }
 
+/* ボタンを常に一番下に押し出して固定 */
 .quiz-next-btn {
   margin-top: auto;
-  margin-bottom: 8px; /* ボタン位置を少し下に移動 */
+  margin-bottom: 0;
 }
 
 /* ----- クイズ結果画面 ----- */
@@ -1091,7 +1103,7 @@ body[data-screen="quiz-result-screen"] {
 .fillin-instruction {
   font-size: 12px;
   color: #729c8c;
-  margin-bottom: 12px;
+  margin-bottom: 30px;
   font-weight: bold;
 }
 
@@ -1100,7 +1112,7 @@ body[data-screen="quiz-result-screen"] {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   padding-right: 4px;
 }
 
@@ -1240,4 +1252,27 @@ body[data-screen="quiz-result-screen"] {
   border-bottom: 2px solid var(--color-primary);
   color: var(--color-secondary);
   border-radius: 4px;
+}
+
+
+/* 記述問題の採点枠スタイル */
+.quiz-fillin-item.correct-choice {
+  border-color: #e55353 !important;
+  background-color: #fff5f5 !important;
+}
+
+.quiz-fillin-item.incorrect-choice {
+  border-color: #4a90e2 !important;
+  background-color: #f0f7ff !important;
+}
+
+/* 記述枠の下に表示される正解テキスト */
+.quiz-fillin-correct-text {
+  font-size: 13px;
+  font-weight: bold;
+  color: #4a90e2;
+  text-align: left;
+  margin-top: -6px;
+  margin-bottom: 4px;
+  padding-left: 12px;
 }
